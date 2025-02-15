@@ -8,5 +8,6 @@ public class LoginMethod : MizonApiRequest<LoginRequest, LoginResponse>
     {
         NeedAuthorized = false;
         MaximumClientCacheDuration = TimeSpan.FromSeconds(122);
+        PropertyForToken = (response) => response.Token;
     }
 }

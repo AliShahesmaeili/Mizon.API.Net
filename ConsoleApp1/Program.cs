@@ -7,7 +7,14 @@ Console.WriteLine("Hello, World!");
 
 var client = new MizonApi();
 
-await client.SendRequestAsync(new LoginMethod(new() { Username = "ali", Password = "aaa" }));
+var model1 = new LoginMethod( new() { Username = "ali", Password = "aaa" });
+
+var model2 = new LoginMethod(new () { Username = "ali", Password = "aaa" });
 
 
-await client.SendRequestAsync(new LoginMethod(new() { Username = "ali", Password = "aaa" }));
+
+Console.WriteLine("Hello, World!");
+
+await client.SendRequestAsync(model1);
+await client.SendRequestAsync(model2);
+

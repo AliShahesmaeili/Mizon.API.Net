@@ -23,6 +23,7 @@ public class MizonApiRequest<TApiRequest, TApiResponse>
     /// </summary>
     protected internal bool NeedAuthorized { get; init; } = true;
 
+    protected internal Func<TApiResponse, string>? PropertyForToken { get; init; }
 
     /// <summary>
     /// The client-side caching strategy to use.
@@ -35,13 +36,13 @@ public class MizonApiRequest<TApiRequest, TApiResponse>
     /// The maximum time that a cached response is considered valid.
     /// </summary>
     protected internal TimeSpan? MaximumClientCacheDuration { get; init; }
-
+    protected internal object? Token { get; init; }
 
     /// <summary>
     /// The request timeout duration.
     /// Defaults to 10 seconds.
     /// </summary>
-    protected internal TimeSpan TimeoutDuration { get; init; } = TimeSpan.FromSeconds(10);
+    protected internal TimeSpan CallTimeoutDuration { get; init; } = TimeSpan.FromSeconds(10);
 
 
     /// <summary>
