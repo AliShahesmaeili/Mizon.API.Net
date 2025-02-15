@@ -27,5 +27,8 @@ jobs:
     - name: Pack the project
       run: dotnet pack --configuration Release --output ./artifacts
 
+    - name: Debug API Key
+      run: echo "API Key ${{ secrets.NUGET_API_KEY }}"
+
     - name: Publish to NuGet
       run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
