@@ -1,13 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageId>Mizon.API.Client</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>AliShahesmaeili</Authors>
+		<Description>Implementation of Mizon API client in .NET</Description>
+		<PackageTags>Mizon, Client</PackageTags>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Mizon.API\Mizon.API.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Mizon.API\Mizon.API.csproj" />
+	</ItemGroup>
 
 </Project>
