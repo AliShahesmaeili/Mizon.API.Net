@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35605.110 d17.13
+VisualStudioVersion = 17.13.35605.110
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mizon.API", "Mizon.API\Mizon.API.csproj", "{55020EDA-D3FC-419B-AC60-0D030B47992D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{C521E64B-9A76-4235-816E-229D0BB6290B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mizon.API.Client", "Mizon.API.Client\Mizon.API.Client.csproj", "{D3BA4EFD-5066-4E9A-8BAE-60B4567E63BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{55020EDA-D3FC-419B-AC60-0D030B47992D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55020EDA-D3FC-419B-AC60-0D030B47992D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55020EDA-D3FC-419B-AC60-0D030B47992D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C521E64B-9A76-4235-816E-229D0BB6290B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C521E64B-9A76-4235-816E-229D0BB6290B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C521E64B-9A76-4235-816E-229D0BB6290B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C521E64B-9A76-4235-816E-229D0BB6290B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3BA4EFD-5066-4E9A-8BAE-60B4567E63BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3BA4EFD-5066-4E9A-8BAE-60B4567E63BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3BA4EFD-5066-4E9A-8BAE-60B4567E63BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3BA4EFD-5066-4E9A-8BAE-60B4567E63BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
