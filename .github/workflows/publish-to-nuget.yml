@@ -28,8 +28,6 @@ jobs:
     - name: Pack the project
       run: dotnet pack --configuration Release --output ./artifacts
 
-    - name: Publish Mizon.API to NuGet
-      run: dotnet nuget push ./artifacts/Mizon.API.*.nupkg --api-key ${{ secrets.MIZON_API_NUGET_API_KEY }} --skip-duplicate --source https://api.nuget.org/v3/index.json
 
     - name: Publish Mizon.API.Client to NuGet
       run: dotnet nuget push ./artifacts/Mizon.API.Client.*.nupkg --api-key ${{ secrets.MIZON_API_CLIENT_NUGET_API_KEY }} --skip-duplicate --source https://api.nuget.org/v3/index.json
