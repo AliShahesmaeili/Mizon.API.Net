@@ -1,11 +1,14 @@
 ﻿namespace Mizon.API;
 
+public interface IBaseApiResponse { }
+
+
 /// <summary>
 /// BaseApiResponse is a generic class representing the response from an API call.
 /// It can either contain the successful response data or an error.
 /// </summary>
 /// <typeparam name="TApiResponse">The type of the successful API response data, which must implement the <see cref="IApiResponse"/> interface.</typeparam>
-public class BaseApiResponse<TApiResponse>
+public class BaseApiResponse<TApiResponse> : IBaseApiResponse
     where TApiResponse : IApiResponse
 {
 

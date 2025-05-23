@@ -1,10 +1,14 @@
 ﻿namespace Mizon.API;
 
+public interface IBaseApiRequest { }
+
+
 /// <summary>
 /// Represents a base class for API requests, providing a container for the request content.
 /// </summary>
 /// <typeparam name="TApiRequest">The specific type of API request, which must implement the <see cref="IApiRequest"/> interface.</typeparam>
-public class BaseApiRequest<TApiRequest> where TApiRequest : IApiRequest
+public class BaseApiRequest<TApiRequest> : IBaseApiRequest
+    where TApiRequest : IApiRequest
 {
     /// <summary>
     /// The content of the API request.

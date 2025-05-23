@@ -11,7 +11,7 @@ namespace Mizon.API;
 
 public interface IMizonApiResponseMiddleware
 {
-    Task InvokeAsync(BaseApiRequest<IApiRequest> request, BaseApiResponse<IApiResponse> response);
+    Task InvokeAsync(IBaseApiRequest request, IBaseApiResponse response);
 }
 
 public class MizonApi
@@ -32,7 +32,7 @@ public class MizonApi
     private string? _token;
 
     public MizonApi(HttpClient httpClient,
-        IMemoryCache memoryCache, 
+        IMemoryCache memoryCache,
         IServiceProvider serviceProvider)
     {
         _httpClient = httpClient;
@@ -61,7 +61,7 @@ public class MizonApi
 
 
 
-    public async Task<BaseApiResponse<Response>> SendRequestAsync<Request, Response>(MizonApiRequest<Request, Response> mizonApiRequest, CancellationToken? cancellationToken = null) 
+    public async Task<BaseApiResponse<Response>> SendRequestAsync<Request, Response>(MizonApiRequest<Request, Response> mizonApiRequest, CancellationToken? cancellationToken = null)
         where Request : IApiRequest where Response : IApiResponse
     {
         var baseApiResponse = new BaseApiResponse<Response>();
@@ -115,10 +115,7 @@ public class MizonApi
             // Run response middleware
             foreach (var middleware in _responseMiddlewares)
             {
-                await middleware.InvokeAsync(
-                    (BaseApiRequest<IApiRequest>)(object)mizonApiRequest.BaseApiRequest,
-                    (BaseApiResponse<IApiResponse>)(object)response
-                );
+                await middleware.InvokeAsync(mizonApiRequest.BaseApiRequest, response);
             }
 
             return response!;
