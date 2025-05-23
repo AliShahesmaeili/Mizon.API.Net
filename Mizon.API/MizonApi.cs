@@ -19,7 +19,7 @@ public class MizonApi
     };
 
     private readonly IMemoryCache _memoryCache;
-    private string _token;
+    private string? _token;
 
     public MizonApi(HttpClient httpClient, IMemoryCache memoryCache)
     {
