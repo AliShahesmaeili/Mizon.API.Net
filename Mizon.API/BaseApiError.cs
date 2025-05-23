@@ -12,7 +12,12 @@ public class BaseApiError
 
 
     /// <summary>
-    /// A human-readable message describing the error.
+    /// A human-readable Title describing the error.
     /// </summary>
-    public string Message { get; set; } = null!;
+    public string Title { get; set; } = null!;
+
+    /// <summary>
+    /// A human-readable Details describing the error.
+    /// </summary>
+    public string Details { get; set; } = null!;
 }

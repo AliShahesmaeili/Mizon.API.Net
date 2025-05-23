@@ -89,66 +89,74 @@ public class MizonApi
         }
         catch (SocketException ex)
         {
-            baseApiResponse.Error = new()
+            baseApiResponse.Error = new BaseApiError
             {
                 Code = 101,
-                Message = "Network socket error: " + ex.Message
+                Title = "Network Error",
+                Details = "A socket error occurred while trying to send the request. " + ex.Message
             };
         }
         catch (IOException ex)
         {
-            baseApiResponse.Error = new()
+            baseApiResponse.Error = new BaseApiError
             {
                 Code = 102,
-                Message = "I/O error during request: " + ex.Message
+                Title = "I/O Error",
+                Details = "An I/O error occurred during request processing. " + ex.Message
             };
         }
         catch (JsonException ex)
         {
-            baseApiResponse.Error = new()
+            baseApiResponse.Error = new BaseApiError
             {
                 Code = 103,
-                Message = "Failed to parse JSON response: " + ex.Message
+                Title = "Invalid JSON",
+                Details = "Failed to parse the JSON response. " + ex.Message
             };
         }
         catch (TimeoutException ex)
         {
-            baseApiResponse.Error = new()
+            baseApiResponse.Error = new BaseApiError
             {
                 Code = 104,
-                Message = "Operation timed out: " + ex.Message
+                Title = "Timeout",
+                Details = "The request operation timed out. " + ex.Message
             };
         }
         catch (OperationCanceledException ex) when (ex.CancellationToken == cancellationToken)
         {
-            baseApiResponse.Error = new()
+            baseApiResponse.Error = new BaseApiError
             {
                 Code = 105,
-                Message = "Operation was explicitly cancelled by user: " + ex.Message
+                Title = "Cancelled by User",
+                Details = "The request was cancelled by the caller. " + ex.Message
             };
         }
         catch (TaskCanceledException ex) when (ex.CancellationToken != cancellationToken)
         {
-            baseApiResponse.Error = new()
+            baseApiResponse.Error = new BaseApiError
             {
                 Code = 106,
-                Message = "Request timed out (internal timeout): " + ex.Message
+                Title = "Request Timeout",
+                Details = "The request was automatically cancelled due to timeout. " + ex.Message
             };
         }
         catch (HttpRequestException ex)
         {
-            baseApiResponse.Error = new()
+            baseApiResponse.Error = new BaseApiError
             {
                 Code = 107,
-                Message = "HTTP request failed: " + ex.Message
+                Title = "HTTP Error",
+                Details = "An HTTP error occurred while sending the request. " + ex.Message
             };
         }
         catch (Exception ex)
         {
-            baseApiResponse.Error = new()
+            baseApiResponse.Error = new BaseApiError
             {
                 Code = 108,
-                Message = "Unexpected error occurred: " + ex.Message
+                Title = "Unexpected Error",
+                Details = "An unexpected error occurred. " + ex.Message
             };
         }
 
