@@ -115,7 +115,10 @@ public class MizonApi
             // Run response middleware
             foreach (var middleware in _responseMiddlewares)
             {
-                await middleware.InvokeAsync(mizonApiRequest.BaseApiRequest as BaseApiRequest<IApiRequest>, response as BaseApiResponse<IApiResponse>);
+                await middleware.InvokeAsync(
+                    (BaseApiRequest<IApiRequest>)(object)mizonApiRequest.BaseApiRequest,
+                    (BaseApiResponse<IApiResponse>)(object)response
+                );
             }
 
             return response!;
