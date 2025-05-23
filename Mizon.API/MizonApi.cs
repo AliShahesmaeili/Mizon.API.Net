@@ -85,42 +85,38 @@ public class MizonApi
         }
         catch (TaskCanceledException taskCanceledException) when (taskCanceledException.CancellationToken == cancellationToken)
         {
-            //baseApiResponse.BaseApiResponseErrorType = BaseApiResponseErrorType.Client;
-            //baseApiResponse.Error = new()
-            //{
-            //    ErrorCode = 2,
-            //    ErrorMessage = taskCanceledException.Message
-            //};
+            baseApiResponse.Error = new()
+            {
+                Code = 1,
+                Message = taskCanceledException.Message
+            };
             return baseApiResponse;
         }
         catch (TaskCanceledException taskCanceledException)
         {
-            //baseApiResponse.BaseApiResponseErrorType = BaseApiResponseErrorType.Client;
-            //baseApiResponse.Error = new()
-            //{
-            //    ErrorCode = 2,
-            //    ErrorMessage = taskCanceledException.Message
-            //};
+            baseApiResponse.Error = new()
+            {
+                Code = 2,
+                Message = taskCanceledException.Message
+            };
             return baseApiResponse;
         }
         catch (HttpRequestException httpRequestException)
         {
-            //baseApiResponse.BaseApiResponseErrorType = BaseApiResponseErrorType.Client;
-            //baseApiResponse.Error = new()
-            //{
-            //    ErrorCode = 3,
-            //    ErrorMessage = httpRequestException.Message
-            //};
+            baseApiResponse.Error = new()
+            {
+                Code = 3,
+                Message = httpRequestException.Message
+            };
             return baseApiResponse;
         }
         catch (Exception exception)
         {
-            //baseApiResponse.BaseApiResponseErrorType = BaseApiResponseErrorType.Client;
-            //baseApiResponse.Error = new()
-            //{
-            //    ErrorCode = 4,
-            //    ErrorMessage = exception.Message
-            //};
+            baseApiResponse.Error = new()
+            {
+                Code = 4,
+                Message = exception.Message
+            };
             return baseApiResponse;
         }
     }
