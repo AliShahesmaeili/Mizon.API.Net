@@ -8,8 +8,19 @@ using System.Text.Json;
 
 namespace Mizon.API;
 
+
+public delegate Task MizonApiMiddleware(
+    BaseApiRequest<IApiRequest> baseRequest,
+    BaseApiResponse<IApiResponse>? baseResponse,
+    Func<Task> next
+);
+
 public class MizonApi
 {
+
+    private readonly List<MizonApiMiddleware> _middlewarePipeline = new();
+    private readonly IServiceProvider _serviceProvider;
+
     private readonly HttpClient _httpClient;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -21,10 +32,13 @@ public class MizonApi
     private readonly IMemoryCache _memoryCache;
     private string? _token;
 
-    public MizonApi(HttpClient httpClient, IMemoryCache memoryCache)
+    public MizonApi(HttpClient httpClient,
+        IMemoryCache memoryCache, 
+        IServiceProvider serviceProvider)
     {
         _httpClient = httpClient;
         _memoryCache = memoryCache;
+        _serviceProvider = serviceProvider;
     }
 
     public void SetToken(string token)
@@ -37,7 +51,60 @@ public class MizonApi
 
     public string? GetToken() => _token;
 
-    public async Task<BaseApiResponse<Response>> SendRequestAsync<Request, Response>(MizonApiRequest<Request, Response> mizonApiRequest, CancellationToken? cancellationToken = null) where Request : IApiRequest where Response : IApiResponse
+
+    public void UseMiddleware<T>() where T : class
+    {
+        Use(async (req, res, next) =>
+        {
+            var instance = _serviceProvider.GetService(typeof(T)) as T;
+
+            if (instance == null)
+                throw new InvalidOperationException($"Unable to resolve middleware '{typeof(T).Name}' from DI container.");
+
+            var method = typeof(T).GetMethod("InvokeAsync");
+
+            if (method == null || method.ReturnType != typeof(Task))
+                throw new InvalidOperationException($"Class {typeof(T).Name} must contain a method named 'InvokeAsync' returning Task.");
+
+            var task = (Task?)method.Invoke(instance, new object[] { req, res, next });
+            if (task != null)
+                await task;
+        });
+    }
+
+    private async Task RunMiddlewarePipeline(
+        BaseApiRequest<IApiRequest> baseRequest,
+        BaseApiResponse<IApiResponse>? baseResponse,
+        Func<Task> finalAction)
+    {
+        var index = 0;
+
+        Task Next()
+        {
+            if (index < _middlewarePipeline.Count)
+            {
+                var current = _middlewarePipeline[index++];
+                return current(baseRequest, baseResponse, Next);
+            }
+            else
+            {
+                return finalAction();
+            }
+        }
+
+        await Next();
+    }
+
+
+
+
+    public void Use(MizonApiMiddleware middleware)
+    {
+        _middlewarePipeline.Add(middleware);
+    }
+
+    public async Task<BaseApiResponse<Response>> SendRequestAsync<Request, Response>(MizonApiRequest<Request, Response> mizonApiRequest, CancellationToken? cancellationToken = null) 
+        where Request : IApiRequest where Response : IApiResponse
     {
         var baseApiResponse = new BaseApiResponse<Response>();
 
@@ -77,28 +144,31 @@ public class MizonApi
             }
             else throw new NotImplementedException();
 
+            BaseApiResponse<IApiResponse>? interceptedResponse = null;
 
 
-            using var timeoutCts = new CancellationTokenSource(mizonApiRequest.CallTimeoutDuration);
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken ?? CancellationToken.None);
+            await RunMiddlewarePipeline(
+                mizonApiRequest.BaseApiRequest as BaseApiRequest<IApiRequest>,
+                null,
+                async () =>
+                {
+                    using var timeoutCts = new CancellationTokenSource(mizonApiRequest.CallTimeoutDuration);
+                    using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken ?? CancellationToken.None);
 
+                    var httpResponseMessage = await _httpClient.SendAsync(httpRequestMessage, linkedCts.Token);
+                    var responseJson = await httpResponseMessage.Content.ReadAsStringAsync();
 
-            var httpResponseMessage = await _httpClient.SendAsync(httpRequestMessage, linkedCts.Token);
+                    interceptedResponse = JsonSerializer.Deserialize<BaseApiResponse<IApiResponse>>(responseJson, JsonOptions);
+                });
 
+            var finalResponse = interceptedResponse as BaseApiResponse<Response>;
 
+            ManageToken(mizonApiRequest.PropertyForToken, finalResponse);
 
-            // httpResponseMessage.EnsureSuccessStatusCode();
-
-            var responseJson = await httpResponseMessage.Content.ReadAsStringAsync();
-
-
-            var response = JsonSerializer.Deserialize<BaseApiResponse<Response>>(responseJson, JsonOptions)!;
-
-            ManageToken(mizonApiRequest.PropertyForToken, response);
-
-            ManageSetCache(cacheKey, response, mizonApiRequest.ClientCacheStrategy, mizonApiRequest.MaximumClientCacheDuration);
-
-            return response;
+            ManageSetCache(cacheKey, finalResponse, mizonApiRequest.ClientCacheStrategy, mizonApiRequest.MaximumClientCacheDuration);
+            
+            
+            return finalResponse ?? new BaseApiResponse<Response> { Error = new BaseApiError { Code = 999, Title = "Unknown", Details = "Middleware failed to return a response." } };
         }
         catch (SocketException ex)
         {
