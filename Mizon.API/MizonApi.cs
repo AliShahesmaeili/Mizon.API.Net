@@ -9,7 +9,7 @@ namespace Mizon.API;
 
 public class MizonApi
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly HttpClient _httpClient;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -20,10 +20,10 @@ public class MizonApi
     private readonly IMemoryCache _memoryCache;
     private string _token;
 
-    public MizonApi(IHttpClientFactory httpClientFactory)
+    public MizonApi(HttpClient httpClient, IMemoryCache memoryCache)
     {
-        _httpClientFactory = httpClientFactory;
-        _memoryCache = new MemoryCache(new MemoryCacheOptions());
+        _httpClient = httpClient;
+        _memoryCache = memoryCache;
     }
 
     public async Task<BaseApiResponse<Response>> SendRequestAsync<Request, Response>(MizonApiRequest<Request, Response> mizonApiRequest, CancellationToken? cancellationToken = null) where Request : IApiRequest where Response : IApiResponse
@@ -39,15 +39,13 @@ public class MizonApi
             if (cachedData is BaseApiResponse<Response> cachedResponse)
                 return cachedResponse;
 
-            using var httpClient = _httpClientFactory.CreateClient();
-
             var httpRequestMessage = new HttpRequestMessage();
 
             ManageHttpVersion(httpRequestMessage);
 
             ManageAuthorization(httpRequestMessage, mizonApiRequest.NeedAuthorized, _token);
 
-            ManageTimeout(httpClient, mizonApiRequest.CallTimeoutDuration);
+
 
             if (mizonApiRequest.HttpMethod == HttpMethod.GET)
             {
@@ -66,7 +64,12 @@ public class MizonApi
             else throw new NotImplementedException();
 
 
-            var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
+
+            using var timeoutCts = new CancellationTokenSource(mizonApiRequest.CallTimeoutDuration);
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken ?? CancellationToken.None);
+
+
+            var httpResponseMessage = await _httpClient.SendAsync(httpRequestMessage, linkedCts.Token);
 
 
 
@@ -83,42 +86,24 @@ public class MizonApi
 
             return response;
         }
-        catch (TaskCanceledException taskCanceledException) when (taskCanceledException.CancellationToken == cancellationToken)
+        catch (TaskCanceledException ex) when (ex.CancellationToken == cancellationToken)
         {
-            baseApiResponse.Error = new()
-            {
-                Code = 1,
-                Message = taskCanceledException.Message
-            };
-            return baseApiResponse;
+            baseApiResponse.Error = new() { Code = 1, Message = "Operation cancelled by user: " + ex.Message };
         }
-        catch (TaskCanceledException taskCanceledException)
+        catch (TaskCanceledException ex)
         {
-            baseApiResponse.Error = new()
-            {
-                Code = 2,
-                Message = taskCanceledException.Message
-            };
-            return baseApiResponse;
+            baseApiResponse.Error = new() { Code = 2, Message = "Request timed out: " + ex.Message };
         }
-        catch (HttpRequestException httpRequestException)
+        catch (HttpRequestException ex)
         {
-            baseApiResponse.Error = new()
-            {
-                Code = 3,
-                Message = httpRequestException.Message
-            };
-            return baseApiResponse;
+            baseApiResponse.Error = new() { Code = 3, Message = "HTTP error: " + ex.Message };
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            baseApiResponse.Error = new()
-            {
-                Code = 4,
-                Message = exception.Message
-            };
-            return baseApiResponse;
+            baseApiResponse.Error = new() { Code = 4, Message = "Unexpected error: " + ex.Message };
         }
+
+        return baseApiResponse;
     }
 
     // تابع برای تولید کلید منحصر به فرد برای کش
@@ -160,11 +145,6 @@ public class MizonApi
     private void ManageHttpVersion(HttpRequestMessage httpRequestMessage)
     {
         httpRequestMessage.Version = HttpVersion.Version30;
-    }
-
-    private void ManageTimeout(HttpClient httpClient, TimeSpan callTimeoutDuration)
-    {
-        httpClient.Timeout = callTimeoutDuration;
     }
 
     private void ManageCompression(HttpRequestMessage httpRequestMessage, string value, CompressionMethod compressionMethod)
