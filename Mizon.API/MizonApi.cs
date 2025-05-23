@@ -48,7 +48,10 @@ public class MizonApi
             var cachedData = ManageGetCache(cacheKey, mizonApiRequest.ClientCacheStrategy);
 
             if (cachedData is BaseApiResponse<Response> cachedResponse)
+            {
+                cachedResponse.IsFromCache = true;
                 return cachedResponse;
+            }
 
             var httpRequestMessage = new HttpRequestMessage();
 

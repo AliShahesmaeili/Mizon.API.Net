@@ -26,4 +26,10 @@ public class BaseApiResponse<TApiResponse>
     /// The error that occurred during the API call, or null if the call was successful.
     /// </summary>
     public BaseApiError? Error { get; set; }
+
+
+    /// <summary>
+    /// Indicates whether the response was retrieved from cache.
+    /// </summary>
+    public bool IsFromCache { get; set; } = false;
 }
