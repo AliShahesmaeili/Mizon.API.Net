@@ -27,6 +27,16 @@ public class MizonApi
         _memoryCache = memoryCache;
     }
 
+    public void SetToken(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ArgumentException("Token cannot be null or empty.", nameof(token));
+
+        _token = token;
+    }
+
+    public string? GetToken() => _token;
+
     public async Task<BaseApiResponse<Response>> SendRequestAsync<Request, Response>(MizonApiRequest<Request, Response> mizonApiRequest, CancellationToken? cancellationToken = null) where Request : IApiRequest where Response : IApiResponse
     {
         var baseApiResponse = new BaseApiResponse<Response>();
