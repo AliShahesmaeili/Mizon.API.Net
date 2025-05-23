@@ -9,10 +9,7 @@ namespace Mizon.API;
 
 public class MizonApi
 {
-    private HttpClient _httpClient = new(new HttpClientHandler()
-    {
-        AutomaticDecompression = DecompressionMethods.All,
-    });
+    private readonly IHttpClientFactory _httpClientFactory;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -23,8 +20,9 @@ public class MizonApi
     private readonly IMemoryCache _memoryCache;
     private string _token;
 
-    public MizonApi()
+    public MizonApi(IHttpClientFactory httpClientFactory)
     {
+        _httpClientFactory = httpClientFactory;
         _memoryCache = new MemoryCache(new MemoryCacheOptions());
     }
 
@@ -41,13 +39,15 @@ public class MizonApi
             if (cachedData is BaseApiResponse<Response> cachedResponse)
                 return cachedResponse;
 
+            using var httpClient = _httpClientFactory.CreateClient();
+
             var httpRequestMessage = new HttpRequestMessage();
 
             ManageHttpVersion(httpRequestMessage);
 
             ManageAuthorization(httpRequestMessage, mizonApiRequest.NeedAuthorized, _token);
 
-            ManageTimeout(_httpClient, mizonApiRequest.CallTimeoutDuration);
+            ManageTimeout(httpClient, mizonApiRequest.CallTimeoutDuration);
 
             if (mizonApiRequest.HttpMethod == HttpMethod.GET)
             {
@@ -66,7 +66,7 @@ public class MizonApi
             else throw new NotImplementedException();
 
 
-            var httpResponseMessage = await _httpClient.SendAsync(httpRequestMessage);
+            var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
 
 
 
