@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>Mizon.API.Client</PackageId>
-		<Version>1.1.0</Version>
+		<Version>1.1.1</Version>
 		<Authors>AliShahesmaeili</Authors>
 		<Description>Implementation of Mizon API client in .NET</Description>
 		<PackageTags>Mizon, Client</PackageTags>
