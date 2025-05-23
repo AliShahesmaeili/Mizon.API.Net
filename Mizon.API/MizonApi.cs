@@ -2,6 +2,7 @@
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 
@@ -86,21 +87,69 @@ public class MizonApi
 
             return response;
         }
-        catch (TaskCanceledException ex) when (ex.CancellationToken == cancellationToken)
+        catch (SocketException ex)
         {
-            baseApiResponse.Error = new() { Code = 1, Message = "Operation cancelled by user: " + ex.Message };
+            baseApiResponse.Error = new()
+            {
+                Code = 101,
+                Message = "Network socket error: " + ex.Message
+            };
         }
-        catch (TaskCanceledException ex)
+        catch (IOException ex)
         {
-            baseApiResponse.Error = new() { Code = 2, Message = "Request timed out: " + ex.Message };
+            baseApiResponse.Error = new()
+            {
+                Code = 102,
+                Message = "I/O error during request: " + ex.Message
+            };
+        }
+        catch (JsonException ex)
+        {
+            baseApiResponse.Error = new()
+            {
+                Code = 103,
+                Message = "Failed to parse JSON response: " + ex.Message
+            };
+        }
+        catch (TimeoutException ex)
+        {
+            baseApiResponse.Error = new()
+            {
+                Code = 104,
+                Message = "Operation timed out: " + ex.Message
+            };
+        }
+        catch (OperationCanceledException ex) when (ex.CancellationToken == cancellationToken)
+        {
+            baseApiResponse.Error = new()
+            {
+                Code = 105,
+                Message = "Operation was explicitly cancelled by user: " + ex.Message
+            };
+        }
+        catch (TaskCanceledException ex) when (ex.CancellationToken != cancellationToken)
+        {
+            baseApiResponse.Error = new()
+            {
+                Code = 106,
+                Message = "Request timed out (internal timeout): " + ex.Message
+            };
         }
         catch (HttpRequestException ex)
         {
-            baseApiResponse.Error = new() { Code = 3, Message = "HTTP error: " + ex.Message };
+            baseApiResponse.Error = new()
+            {
+                Code = 107,
+                Message = "HTTP request failed: " + ex.Message
+            };
         }
         catch (Exception ex)
         {
-            baseApiResponse.Error = new() { Code = 4, Message = "Unexpected error: " + ex.Message };
+            baseApiResponse.Error = new()
+            {
+                Code = 108,
+                Message = "Unexpected error occurred: " + ex.Message
+            };
         }
 
         return baseApiResponse;
