@@ -206,6 +206,9 @@ public class MizonApi
         if (baseApiResponse is null)
             return;
 
+        if (baseApiResponse.ResponseContent is null)
+            return;
+
         _token = propertyForToken(baseApiResponse.ResponseContent!);
     }
 
