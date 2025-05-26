@@ -20,4 +20,6 @@ public class BaseApiError
     /// A human-readable Details describing the error.
     /// </summary>
     public string Details { get; set; } = null!;
+
+    public string? CloseButtonText { get; set; }
 }
