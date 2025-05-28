@@ -5,7 +5,7 @@
 /// </summary>
 public class LoginOperation : MizonApiRequest<LoginRequest, LoginResponse>
 {
-    public LoginOperation(LoginRequest loginRequest) : base(HttpMethod.POST, Endpoints.Login, loginRequest)
+    public LoginOperation(LoginRequest loginRequest) : base(HttpMethod.POST, Endpoints.LOGIN, loginRequest)
     {
         //Set the NeedAuthorized property to false to indicate that this method doesn't require authorization.
         NeedAuthorized = false;

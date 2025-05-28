@@ -89,8 +89,8 @@ public class MizonApi
             if (mizonApiRequest.HttpMethod == HttpMethod.GET)
             {
                 //var queryString = GetQueryStringFromObject(mizonApiRequest.BaseApiRequest);
-                //httpRequestMessage.RequestUri = new($"{mizonApiRequest.Endpoint}?{queryString}");
-                //httpRequestMessage.Method = System.Net.Http.HttpMethod.Get;
+                httpRequestMessage.RequestUri = new($"{mizonApiRequest.Endpoint}");
+                httpRequestMessage.Method = System.Net.Http.HttpMethod.Get;
             }
             else if (mizonApiRequest.HttpMethod == HttpMethod.POST)
             {
