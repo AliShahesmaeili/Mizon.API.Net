@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
@@ -19,6 +21,7 @@ public class MizonApi
 
     private readonly List<IMizonApiResponseMiddleware> _responseMiddlewares = new();
     private readonly IServiceProvider _serviceProvider;
+    private readonly HubConnection _hubConnection;
 
     private readonly HttpClient _httpClient;
 
@@ -33,11 +36,13 @@ public class MizonApi
 
     public MizonApi(HttpClient httpClient,
         IMemoryCache memoryCache,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        HubConnection hubConnection)
     {
         _httpClient = httpClient;
         _memoryCache = memoryCache;
         _serviceProvider = serviceProvider;
+        _hubConnection = hubConnection;
     }
 
     public void SetToken(string token)
@@ -64,7 +69,7 @@ public class MizonApi
     public async Task<BaseApiResponse<Response>> SendRequestAsync<Request, Response>(MizonApiRequest<Request, Response> mizonApiRequest, CancellationToken? cancellationToken = null)
         where Request : IApiRequest where Response : IApiResponse
     {
-        var baseApiResponse = new BaseApiResponse<Response>();
+        var baseApiResponse = new BaseApiResponse<Response>(_hubConnection);
 
         try
         {
